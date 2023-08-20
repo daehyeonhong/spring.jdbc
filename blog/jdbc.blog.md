@@ -87,7 +87,7 @@ public class DatabaseConnectionUtil {
 ```java
 public class DriverManager {
     private static final CopyOnWriteArrayList<DriverInfo> registeredDrivers = new CopyOnWriteArrayList<>();
-    
+
     private static Connection getConnection(
             String url, java.util.Properties info, Class<?> caller) throws SQLException {
         ClassLoader callerCL = caller != null ? caller.getClassLoader() : null;
@@ -141,3 +141,23 @@ public class DriverManager {
 만약 유효한(`ClassLoader`를 통해 로딩된) `Driver`를 찾으면 `Driver`의 `connect()`를 호출하여 `Connection`을 시도한다.<br/>
 연결이 성공하면 해당 드라이버를 전달하고, 만약 연결이 실패하면 다음 `Driver`를 순서대로 시도해본다.<br/>
 모든 `Driver`를 시도해도 연결이 실패하면 `SQLException`을 발생시킨다.<br/>
+
+### 4. `JDBC`개발 - `Insert`
+
+`JDBC`를 사용하여 `Database`에 데이터를 삽입하는 방법은 다음과 같다.<br/>
+
+1. `Connection`을 생성한다.
+2. `Statement:SQL`를 생성한다.
+    - `Statement`는 `SQL`을 실행하는 역할을 한다.
+    - `Statement`를 상속받은 `PreparedStatement`를 사용하면 `SQL`을 미리 컴파일하여 재사용할 수 있다.
+        - 파라미터 위치에 `?`를 사용하여 `SQL`을 작성하고, `?`에 값을 바인딩하여 `SQL`을 실행한다.
+        - `SQLInjection`을 방지할 수 있다.
+        - 
+3. `Statement`를 통해 `SQL`을 실행한다.
+4. `ResultSet`을 통해 결과를 받아온다.
+5. 자원을 해제한다.
+    - 선언의 역순으로 `ResultSet`, `Statement`, `Connection`을 순서대로 해제한다.
+    - `Resource` 정리
+        - `Resource`는 `AutoClosable`을 구현하고 있어서 `try-with-resource`를 사용하면 자동으로 정리된다.
+        - `try-with-resource`를 사용하지 않는다면 `finally`를 사용하여 정리해야 한다.
+        - 정리하지 않으면 `Connection`이 계속 남아있어서 `Database`에 접근할 수 있는 `Connection`의 수가 제한되어 있을 경우 문제가 발생할 수 있다.
