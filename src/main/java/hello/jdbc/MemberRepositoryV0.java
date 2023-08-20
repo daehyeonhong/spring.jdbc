@@ -61,6 +61,61 @@ public class MemberRepositoryV0 {
         }
     }
 
+    public void update(final String memberId, int money) throws SQLException {
+        final String sql = "UPDATE MEMBER SET MONEY = ? WHERE MEMBER_ID = ?";
+        log.info("sql: {}", sql);
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = DatabaseConnectionUtil.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, money);
+            preparedStatement.setString(2, memberId);
+            final int affectedRows = preparedStatement.executeUpdate();
+            log.info("affectedRows: {}", affectedRows);
+        } catch (SQLException sqlException) {
+            log.error("Database Error", sqlException);
+            throw sqlException;
+        } finally {
+            close(connection, preparedStatement, null);
+        }
+    }
+
+    public void delete(final String memberId) throws SQLException {
+        final String sql = "DELETE FROM MEMBER WHERE MEMBER_ID = ?";
+        log.info("sql: {}", sql);
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = DatabaseConnectionUtil.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, memberId);
+            final int affectedRows = preparedStatement.executeUpdate();
+            log.info("affectedRows: {}", affectedRows);
+        } catch (SQLException sqlException) {
+            log.error("Database Error", sqlException);
+            throw sqlException;
+        } finally {
+            close(connection, preparedStatement, null);
+        }
+    }
+
+    public void deleteAll() {
+        final String sql = "TRUNCATE TABLE MEMBER";
+        log.info("sql: {}", sql);
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = DatabaseConnectionUtil.getConnection();
+            statement = connection.createStatement();
+            final int affectedRows = statement.executeUpdate(sql);
+            log.info("affectedRows: {}", affectedRows);
+        } catch (SQLException sqlException) {
+            log.error("Database Error", sqlException);
+        } finally {
+            close(connection, statement, null);
+        }
+    }
 
     private static void close(final Connection connection, final Statement statement, final ResultSet resultSet) {
         if (resultSet != null) {

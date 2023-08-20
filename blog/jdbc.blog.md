@@ -171,3 +171,7 @@ public class DriverManager {
 `Cursor`가 위치한 행의 데이터를 조회하고 싶으면 `ResultSet`의 `getXXX()`를 호출하면 된다.<br/>
 `XXX`는 조회하고 싶은 데이터의 타입을 의미한다. ex: `getString()`, `getInt()` ...<br/>
 `PK` 조회 시 `ResultSet`의 `next()`로 존재 여부를 확인할 수 있고, `Collection` 조회시에는 `while`문을 통해 `Cursor`가 존재하는 동안 데이터를 조회할 수 있다.<br/>
+
+### 4.3. `JDBC`개발 - `Update`, `Delete`
+
+`JDBC`의 `Update`, `Delete`는 `Insert`와 동일하다.<br/>
