@@ -218,3 +218,12 @@ public interface DataSource extends CommonDataSource, Wrapper {
 사용하는 `ConnectionPool`의 종류에 따라서 `DataSource`를 구현한 클래스가 존재한다.<br/>
 `DriverManager`는 `DataSource`의 구현체가 아니기 때문에 `DataManager`를 사용하면 `ConnectionPool`을 사용할 수 없다.<br/>
 이 문제를 해결하기 위해 `DriverManager`도 `DataSource`를 구현한 `DriverManagerDataSource`를 제공한다.<br/>
+
+### 5.3.1. `DataSource` - `DriverManager`
+
+`DriverManager`는 `Connection`을 획득할 때 마다 인증 정보(`URL`, `USERNAME`, `PASSWORD`)를 전달해야 한다.<br/>
+`DataSource`를 사용하면 `Connection`을 획득할 때 마다 인증 정보를 전달할 필요가 없다.<br/>
+사용하는 곳에서 단순하게 `dataSource.getConnection()`을 호출하면 된다.<br/>
+
+설정과 사용을 분리하여 안전하게 관리가 가능하다.<br/>
+`DataSource`를 사용하면 `Connection`을 획득할 때 마다 인증 정보를 전달할 필요가 없기 때문에 `Connection`을 획득하는 코드를 공유할 수 있다.<br/>
