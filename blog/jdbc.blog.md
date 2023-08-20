@@ -175,3 +175,29 @@ public class DriverManager {
 ### 4.3. `JDBC`개발 - `Update`, `Delete`
 
 `JDBC`의 `Update`, `Delete`는 `Insert`와 동일하다.<br/>
+
+### 5. `ConnectionPool`과 `DataSource`
+
+`JDBC`를 사용하여 `Database`에 직접 접근하는 방법은 위와 같다.<br/>
+다만 `DriverManager`를 통해 `Connection`을 생성하면 비효율적인 점이 존재한다.<br/>
+`Connection`생성의 단계를 간략화하면 아래와 같다.<br/>
+
+*`Connection`생성 단계*
+
+1. `DatabaseDriver`를 통해 `Connection`을 생성한다.
+2. `DatabaseDriver`는 `Database`에 접근하기 위한 `Socket`을 생성하고, `3-way-handshake`를 통해 `TCP/IP`연결을 수립한다.
+3. `TCP/IP` `Connection`이 수립되면 `username`, `password`를 `Database`에 전달한다.
+4. `Database`는 `username`, `password`로 인증을 완료하고, 내부에 `DatabaseSession`을 생성한다.
+5. `Database`는 `Connection`을 생성했다는 응답을 `DatabaseDriver`에 전달한다.
+6. `DatabaseDriver`는 `Connection` 객체를 생성하고, `Client`에 전달한다.
+
+매 요청마다 위와 같은 단계를 거치기 때문에 성능상의 문제가 발생할 수 있다.<br/>
+`SQL` 수행 시간보다 `Connection`을 생성하는 시간이 더 오래 걸릴 수 있고, 이는 고객 경험에 영향을 줄 수 있다.<br/>
+이러한 문제를 해결하기 위해 `ConnectionPool`을 사용한다.<br/>
+
+### 5.1. `ConnectionPool`이란?
+
+`ConnectionPool`은 `Connection`을 미리 생성해두고, 필요할 때마다 `Connection`을 꺼내서 사용하는 방식이다.<br/>
+`ServletContainer`에서 `TreadPool`을 사용하는 것처럼 일정한 개수의 `Connection`을 미리 생성해두고, 필요할 때마다 `Connection`을 꺼내서 사용한다.<br/>
+`ConnectionPool`을 사용하면 `Connection`을 생성하는 시간을 줄일 수 있고, `Connection`을 재사용할 수 있기 때문에 성능상의 이점이 있다.<br/>
+추가로 설정한 `Connection` 이상의 요청이 들어오면 `Connection`을 대기시키기 때문에 `Database`를 보호하는 효과도 있다.<br/>
