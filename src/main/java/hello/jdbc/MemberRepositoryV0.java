@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.NoSuchElementException;
 
 /**
  * JDBC - DriverManager 사용
@@ -28,11 +29,38 @@ public class MemberRepositoryV0 {
             return member;
         } catch (SQLException sqlException) {
             log.error("Database Error", sqlException);
-            throw new SQLException(sqlException);
+            throw sqlException;
         } finally {
             close(connection, preparedStatement, null);
         }
     }
+
+    public Member findById(final String memberId) throws SQLException {
+        final String sql = "SELECT MEMBER_ID, MONEY FROM MEMBER WHERE MEMBER_ID = ?";
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = DatabaseConnectionUtil.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, memberId);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                final String memberIdFromDatabase = resultSet.getString("MEMBER_ID");
+                final int money = resultSet.getInt("MONEY");
+                final Member member = new Member(memberIdFromDatabase, money);
+                log.info("member: {}", member);
+                return member;
+            }
+            throw new NoSuchElementException("member not found memberId: " + memberId);
+        } catch (SQLException sqlException) {
+            log.error("Database Error", sqlException);
+            throw sqlException;
+        } finally {
+            close(connection, preparedStatement, resultSet);
+        }
+    }
+
 
     private static void close(final Connection connection, final Statement statement, final ResultSet resultSet) {
         if (resultSet != null) {

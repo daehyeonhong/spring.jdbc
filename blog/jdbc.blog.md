@@ -142,7 +142,7 @@ public class DriverManager {
 연결이 성공하면 해당 드라이버를 전달하고, 만약 연결이 실패하면 다음 `Driver`를 순서대로 시도해본다.<br/>
 모든 `Driver`를 시도해도 연결이 실패하면 `SQLException`을 발생시킨다.<br/>
 
-### 4. `JDBC`개발 - `Insert`
+### 4.1. `JDBC`개발 - `Insert`
 
 `JDBC`를 사용하여 `Database`에 데이터를 삽입하는 방법은 다음과 같다.<br/>
 
@@ -152,7 +152,7 @@ public class DriverManager {
     - `Statement`를 상속받은 `PreparedStatement`를 사용하면 `SQL`을 미리 컴파일하여 재사용할 수 있다.
         - 파라미터 위치에 `?`를 사용하여 `SQL`을 작성하고, `?`에 값을 바인딩하여 `SQL`을 실행한다.
         - `SQLInjection`을 방지할 수 있다.
-        - 
+        -
 3. `Statement`를 통해 `SQL`을 실행한다.
 4. `ResultSet`을 통해 결과를 받아온다.
 5. 자원을 해제한다.
@@ -161,3 +161,13 @@ public class DriverManager {
         - `Resource`는 `AutoClosable`을 구현하고 있어서 `try-with-resource`를 사용하면 자동으로 정리된다.
         - `try-with-resource`를 사용하지 않는다면 `finally`를 사용하여 정리해야 한다.
         - 정리하지 않으면 `Connection`이 계속 남아있어서 `Database`에 접근할 수 있는 `Connection`의 수가 제한되어 있을 경우 문제가 발생할 수 있다.
+
+### 4.2. `JDBC`개발 - `Select`
+
+`JDBC`를 사용하여 `Database`에서 데이터를 조회하면 `ResultSet`을 통해 결과를 받아온다.<br/>
+`ResultSet`은 `Cursor`와 같은 역할을 한다.<br/>
+먼저 `Statement`를 통해 `SQL`을 실행하면 `ResultSet`에 `Cursor`가 위치하게 되고, 이를 통해 `SQL`의 결과를 순차적으로 조회할 수 있다.<br/>
+`ResultSet`의 `next()`를 호출하면 `Cursor`가 다음 행으로 이동하고, `Cursor`가 위치한 행의 데이터를 조회할 수 있다.<br/>
+`Cursor`가 위치한 행의 데이터를 조회하고 싶으면 `ResultSet`의 `getXXX()`를 호출하면 된다.<br/>
+`XXX`는 조회하고 싶은 데이터의 타입을 의미한다. ex: `getString()`, `getInt()` ...<br/>
+`PK` 조회 시 `ResultSet`의 `next()`로 존재 여부를 확인할 수 있고, `Collection` 조회시에는 `while`문을 통해 `Cursor`가 존재하는 동안 데이터를 조회할 수 있다.<br/>
