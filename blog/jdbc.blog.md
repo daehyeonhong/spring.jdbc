@@ -227,3 +227,23 @@ public interface DataSource extends CommonDataSource, Wrapper {
 
 설정과 사용을 분리하여 안전하게 관리가 가능하다.<br/>
 `DataSource`를 사용하면 `Connection`을 획득할 때 마다 인증 정보를 전달할 필요가 없기 때문에 `Connection`을 획득하는 코드를 공유할 수 있다.<br/>
+
+### 5.3.2. `DataSource` - `HikariCP`
+
+`HikariCP`는 `DataSource`를 구현한 `HikariDataSource`를 제공한다.<br/>
+`HikariDataSource`는 `ConnectionPool`을 사용하기 때문에 `Connection`을 획득할 때 마다 `Connection`을 생성하는 단계를 거치지 않는다.<br/>
+`HikariCP`는 여러가지 설정을 통해 `ConnectionPool`을 튜닝할 수 있다.<br/>
+
+```java
+class HikariDataSourceTest {
+    @Test  
+    void hikariCpTest(){
+        final HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(URL);
+        dataSource.setUsername(USERNAME);
+        dataSource.setPassword(PASSWORD);
+        dataSource.setMaximumPoolSize(10);
+        dataSource.setPoolName("MyHikariCP");
+    }
+}
+```
