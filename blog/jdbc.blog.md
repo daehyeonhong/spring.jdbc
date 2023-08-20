@@ -58,3 +58,86 @@
 > 객체 관계 매핑을 가능하게 하는 상용 또는 무료 소프트웨어 패키지들이 있고, 경우에 따라서는 독자적으로 개발하기도 한다.<br/>
 >
 > \- [Wikipedia](https://ko.wikipedia.org/wiki/객체_관계_매핑)
+
+## 3. Connect to `Database`
+
+`JDBC`를 사용하여 `Database`에 접근하는 방법을 알아보자.<br/>
+아래는 `JDBC`를 사용하여 `PostgreSQL`에 접근하는 예제이다.<br/>
+
+```java
+
+public class DatabaseConnectionUtil {
+    private static final Logger log = LoggerFactory.getLogger(DatabaseConnectionUtil.class);
+
+    public static Connection getConnection() {
+        try {
+            final Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+            log.info("get connection: {}, class: {}", connection, connection.getClass());
+            return connection;
+        } catch (final SQLException sqlException) {
+            throw new IllegalStateException(sqlException);
+        }
+    }
+}
+```
+
+`DriverManager.getConnection()`을 통해 `Connection`을 생성할 수 있다.<br/>
+`DriverManager`는 어떻게 연결해야하는 `Database`를 알고 찾아줄까?
+
+```java
+public class DriverManager {
+    private static final CopyOnWriteArrayList<DriverInfo> registeredDrivers = new CopyOnWriteArrayList<>();
+    
+    private static Connection getConnection(
+            String url, java.util.Properties info, Class<?> caller) throws SQLException {
+        ClassLoader callerCL = caller != null ? caller.getClassLoader() : null;
+        if (callerCL == null || callerCL == ClassLoader.getPlatformClassLoader()) {
+            callerCL = Thread.currentThread().getContextClassLoader();
+        }
+
+        if (url == null) {
+            throw new SQLException("The url cannot be null", "08001");
+        }
+
+        println("DriverManager.getConnection(\"" + url + "\")");
+
+        ensureDriversInitialized();
+
+        SQLException reason = null;
+
+        for (DriverInfo aDriver : registeredDrivers) {
+            if (isDriverAllowed(aDriver.driver, callerCL)) {
+                try {
+                    println("    trying " + aDriver.driver.getClass().getName());
+                    Connection con = aDriver.driver.connect(url, info);
+                    if (con != null) {
+                        println("getConnection returning " + aDriver.driver.getClass().getName());
+                        return (con);
+                    }
+                } catch (SQLException ex) {
+                    if (reason == null) {
+                        reason = ex;
+                    }
+                }
+
+            } else {
+                println("    skipping: " + aDriver.driver.getClass().getName());
+            }
+
+        }
+
+        if (reason != null) {
+            println("getConnection failed: " + reason);
+            throw reason;
+        }
+
+        println("getConnection: no suitable driver found for " + url);
+        throw new SQLException("No suitable driver found for " + url, "08001");
+    }
+}
+```
+
+먼저 `DriverManager`는 자신에게 등록된 `Driver` 목록(`registeredDrivers`)을 순회하며, 해당 드라이버가 `ClassLoader`를 통해 로딩 되었는지 확인한다.<br/>
+만약 유효한(`ClassLoader`를 통해 로딩된) `Driver`를 찾으면 `Driver`의 `connect()`를 호출하여 `Connection`을 시도한다.<br/>
+연결이 성공하면 해당 드라이버를 전달하고, 만약 연결이 실패하면 다음 `Driver`를 순서대로 시도해본다.<br/>
+모든 `Driver`를 시도해도 연결이 실패하면 `SQLException`을 발생시킨다.<br/>
