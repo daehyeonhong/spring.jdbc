@@ -201,3 +201,20 @@ public class DriverManager {
 `ServletContainer`에서 `TreadPool`을 사용하는 것처럼 일정한 개수의 `Connection`을 미리 생성해두고, 필요할 때마다 `Connection`을 꺼내서 사용한다.<br/>
 `ConnectionPool`을 사용하면 `Connection`을 생성하는 시간을 줄일 수 있고, `Connection`을 재사용할 수 있기 때문에 성능상의 이점이 있다.<br/>
 추가로 설정한 `Connection` 이상의 요청이 들어오면 `Connection`을 대기시키기 때문에 `Database`를 보호하는 효과도 있다.<br/>
+
+### 5.2. `DataSource`란?
+
+`DataSource`는 `Connection`을 획득하는 방법을 추상화하는 인터페이스이다.<br/>
+
+```java
+package javax.sql;
+
+public interface DataSource extends CommonDataSource, Wrapper {
+    Connection getConnection() throws SQLException;
+}
+```
+
+`DataSource`는 `Connection`을 획득하는 `getConnection()`을 제공한다.<br/>
+사용하는 `ConnectionPool`의 종류에 따라서 `DataSource`를 구현한 클래스가 존재한다.<br/>
+`DriverManager`는 `DataSource`의 구현체가 아니기 때문에 `DataManager`를 사용하면 `ConnectionPool`을 사용할 수 없다.<br/>
+이 문제를 해결하기 위해 `DriverManager`도 `DataSource`를 구현한 `DriverManagerDataSource`를 제공한다.<br/>
