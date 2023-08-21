@@ -333,3 +333,14 @@ Database`의 상태가 변경된다.
 잠긴 리소스는 `Lock`을 획득한 `Session`만 접근할 수 있고, `Transaction`이 종료되면(`Commit`, `Rollback`) `Lock`이 해제된다.  
 다른 `Session`에서 `Lock`을 획득하려고 하면 `Lock`이 해제될 때까지 대기한다.  
 대기 중인 `Session`에서 일정 시간이 지나면, `LockTimeout`이 발생하여 `Exception`이 발생한다.
+
+### 2.3.2. `DatabaseLock` - `Select`
+
+일반적인 조회(`Select`)는 `Database`의 상태를 변경하지 않기 때문에 `Lock`을 획득하지 않는다.  
+만약 다른 `Session`이 `Lock`을 통한 접근을 막고 있더라도, 임시 데이터가 아닌 일반 데이터를 조회하게 된다.  
+`Select`는 `Lock`을 획득하지 않기 때문에 `DirtyRead`가 발생할 수 있는데, `Select`문 마지막에 `FOR UPDATE`를 추가하면 `Lock`을 획득할 수 있다.
+
+```postgresql
+SELECT *
+FROM USER_ENTITY FOR UPDATE;
+```
