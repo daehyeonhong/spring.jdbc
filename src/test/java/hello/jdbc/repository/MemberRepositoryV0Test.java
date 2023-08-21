@@ -1,4 +1,4 @@
-package hello.jdbc;
+package hello.jdbc.repository;
 
 import hello.jdbc.domain.Member;
 import org.junit.jupiter.api.AfterEach;

@@ -1,4 +1,4 @@
-package hello.jdbc;
+package hello.jdbc.repository;
 
 import com.zaxxer.hikari.HikariDataSource;
 import hello.jdbc.domain.Member;
