@@ -384,3 +384,40 @@ FROM USER_ENTITY FOR UPDATE;
     - 순수 `JDBC`를 사용한 방식으로 `Database`에 접근하면 반복되는 코드가 많다.
         - `try-catch-finally`를 사용하여 `Resource`를 정리하는 코드가 반복된다.
             - `Connection`, `Statement`, `ResultSet`을 사용하는 코드가 반복된다.
+
+## 3.1 `TransactionAbstraction`
+
+`Transaction`을 구현하기 위해 발생한 문제를 해결하기 위해 추상화된 `Transaction`을 생성해보자.
+
+```java
+public interface TransactionAbstraction {
+    void begin();
+
+    void commit();
+
+    void rollback();
+}
+```
+
+`Transaction`은 `begin()`, `commit()`, `rollback()`을 제공하고, `Transaction`을 구현한 클래스는 해당 메서드를 구현하면 된다.
+
+`Spring`에서는 해당 기능을 명세화한 `PlatformTransactionManager`를 제공한다.
+
+```java
+public interface PlatformTransactionManager {
+    TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;
+
+    void commit(TransactionStatus status) throws TransactionException;
+
+    void rollback(TransactionStatus status) throws TransactionException;
+}
+```
+
+각 `Database` 접근 기술마다(`ORM: JPA`, `Hibernate`,`JDBC`, ...) `Transaction`을 구현한 클래스를 제공한다.
+
+| `Database` Access Technology | `Transaction` Implementation Class |
+|:----------------------------:|:----------------------------------:|
+|            `JDBC`            |   `DataSourceTransactionManager`   |
+|            `JPA`             |      `JpaTransactionManager`       |
+|         `Hibernate`          |   `HibernateTransactionManager`    |
+|            `ETC`             |      `EtcTransactionManager`       |
