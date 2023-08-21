@@ -344,3 +344,43 @@ Database`의 상태가 변경된다.
 SELECT *
 FROM USER_ENTITY FOR UPDATE;
 ```
+
+### 2.4. `Transaction` 적용
+
+`Transaction`없이 `Database`의 상태를 변경하면 로직 진행 중 발생하는 다양한 오류 속에서 데이터 정합성을 보장하기 어렵다.  
+앞서 작성한 예제에서도, 이체 도중 발생한 예외로 인해 데이터 정합이 깨지는 상황이 벌어졌다.  
+이러한 문제를 해결하기 위해 `Transaction`을 적용해보자.  
+보통의 경우 하나의 `Business Logic` 별로 `Transaction`을 묶이는 것이 일반적이다.  
+먼저 `Service` 레이어에서 `Transaction`을 적용해보자.
+`Transaction`을 유지하기 위해서는 동일한 `Session`을 사용해야 하는데, 이를 위해 같은 `Connection`을 사용해야 한다.
+
+#### *동일한 `Connection`을 사용하는 방법*
+
+`Connection`을 매개변수로 전달한다.
+
+- `Connection`을 사용하는 모든 곳에 `Connection`을 전달해야 한다.
+- `Connection`을 전달하는 곳이 많아지면 코어 로직 이외에 공통 관심사 코드가 많아지고, 이로 인해 코드가 복잡해진다.
+
+## 3. `Transaction` 적용
+
+앞서 `Transaction`을 적용하기 위해 `BusinessLayer`인 `ServiceLayer`에 `Database` 관련 코드가 존재하는 것을 확인했다.  
+`Database`관련 로직은 `Repository`가 존재하는 `InfrastructureLayer`에 존재해야 한다.  
+`Layer`간에 누수 혹은 침범이 발생하면, `Layer`간의 의존성과 결합도가 높아지게 된다.  
+`ServiceLayer`에는 `BusinessLogic`만 존재해야 하고, 이 계층의 코드는 `Infrastructure`, `Presentation` 계층의 코드에 의존하지 않고 최대한 유지되어야 한다.
+
+### `Transaction` 구현을 위해 발생한 문제.
+
+1. `JDBC` 구현 기술의 `ServiceLayer` 의존성
+    - `JDBC`를 사용하여 `Transaction`을 구현하면 `ServiceLayer`에 `JDBC` 의존성이 생긴다.
+2. `Transaction` 동기화 문제
+    - 동일한 `Transaction`을 유지하기 위해 `Connection`을 전달해야 한다.
+3. `Transaction` 적용 중복 문제
+    - 단순히 `Transaction`을 적용하기 위해 반복되는 코드가 많다.
+        - `try-catch-finally`
+4. 예외 누수
+    - `InfrastructureLayer`에서 발생한 예외가 `ServiceLayer`까지 전달되어 `ServiceLayer`에서 예외를 처리해야 한다.
+        - `SQLException`을 `ServiceLayer`에서 처리해야 한다.
+5. `JDBC` 반복 문제
+    - 순수 `JDBC`를 사용한 방식으로 `Database`에 접근하면 반복되는 코드가 많다.
+        - `try-catch-finally`를 사용하여 `Resource`를 정리하는 코드가 반복된다.
+            - `Connection`, `Statement`, `ResultSet`을 사용하는 코드가 반복된다.
