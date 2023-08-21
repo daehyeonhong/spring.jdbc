@@ -304,3 +304,12 @@ class HikariDataSourceTest {
 
 단계는 `Read Uncommitted`, `Read Committed`, `Repeatable Read`, `Serializable` 순으로 높은 격리성을 보장한다.  
 `Serializable`은 `Transaction`이 완료될 때까지 `Database`의 상태가 변경되지 않는다.
+
+## 2. `Transaction` 개념 이해
+
+`Database`와 `Connection`을 맺으면 하나의 `Session`을 가지게 된다.  
+해당 `Session`은 `Transaction`을 가질 수 있고, `Transaction`은 `Database`의 상태를 변경하는 작업의 단위이다.  
+`AutoCommit`을 해제한 상태에서 `CUD:데이터 변경`작업을 진행하면, `Commit`을 호출하기 전까지는 임시로 데이터를 저장하게 된다.  
+해당 내용은 `Transaction`이 시작된 `Session`에서만 조회할 수 있고(`Isolation Level`에 따라 다를 수 있음), `Transaction`이 `Commit`되면 `
+Database`의 상태가 변경된다.  
+`Commit`되지 않은 데이터가 다른 `Session`에서 조회(`DirtyRead`) 된다면, 데이터 정합면에서 문제가 발생할 수 있다.  
