@@ -318,3 +318,18 @@ Database`의 상태가 변경된다.
 
 `AutoCommit`은 `Connection`을 생성할 때 `true`로 설정되어 있으면 `CUD:데이터 변경`작업을 할 때마다 `Commit`이 자동으로 호출된다.  
 `AutoCommit`을 `false`로 설정하면 수동으로 `Commit`을 호출해야 한다.
+
+## 2.3. `DatabaseLock`
+
+앞서 `Transaction`은 `Database`의 상태를 변경하는 작업의 단위라고 했다.  
+만약 동시에 같은 자원을 변경하는 `Transaction`이 존재한다면 어떻게 될까?  
+그런 경우 `Database`는 어떤 `Transaction`을 먼저 실행할지 결정해야 한다.  
+이를 해결하기 위해 `Database`는 `Lock`을 사용한다.
+
+### 2.3.1. `Lock`이란?
+
+`Database`에서 자원을 변경하려는 경우, 다른 `Session:Transaction`의 접근을 막아야 한다.  
+해당 자원에 대한 접근을 잠그는 것을 `Lock`이라고 한다.  
+잠긴 리소스는 `Lock`을 획득한 `Session`만 접근할 수 있고, `Transaction`이 종료되면(`Commit`, `Rollback`) `Lock`이 해제된다.  
+다른 `Session`에서 `Lock`을 획득하려고 하면 `Lock`이 해제될 때까지 대기한다.  
+대기 중인 `Session`에서 일정 시간이 지나면, `LockTimeout`이 발생하여 `Exception`이 발생한다.
