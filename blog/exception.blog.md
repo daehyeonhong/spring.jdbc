@@ -98,3 +98,11 @@ Web Application (Servlet Container)
 
 `RuntimeException`을 사용하면, `Layer`간의 강결합을 피할 수 있다.  
 호출 간에 `Exception`을 명시적으로 전달하지 않아도 되기 때문에 공통 예외 처리부에만 `Exception`을 처리하면 된다.
+
+## `Exception`포함과 `Stack Trace`
+
+`Exception`이 발생하면 `Stack Trace`가 출력된다.
+`e.printStackTrace()`를 사용하면 `System.out`으로 `Stack Trace`를 출력하기 때문에, 사용을 지양해야 한다.
+
+기존 `Exception`을 포함하여 새로운 `Exception`을 발생시키면, 기존 `Exception`의 `Stack Trace`가 함께 출력된다.  
+해당 로그를 누락한다면 `Exception`의 원인을 파악하기 어렵다.

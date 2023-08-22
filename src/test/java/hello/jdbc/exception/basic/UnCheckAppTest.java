@@ -1,27 +1,37 @@
 package hello.jdbc.exception.basic;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class UnCheckAppTest {
+    private static final Logger log = LoggerFactory.getLogger(UnCheckAppTest.class);
+
+    @Test
+    void printEx() {
+        final Controller controller = new Controller();
+        try {
+
+            controller.request();
+        } catch (final Exception e) {
+            log.info("예외 처리, message: {}", e.getMessage(), e);
+        }
+    }
 
     @Test
     void checked_catch() {
-        final Service service = new Service(new Repository(), new NetworkClient());
-        final Controller controller = new Controller(service);
+        final Service service = new Service();
+        final Controller controller = new Controller();
         assertThatThrownBy(controller::request)
                 .isInstanceOf(RuntimeException.class);
     }
 
     static class Controller {
-        private final Service service;
-
-        public Controller(final Service service) {
-            this.service = service;
-        }
+        Service service;
 
         public void request() {
             this.service.logic();
@@ -29,14 +39,8 @@ public class UnCheckAppTest {
     }
 
     static class Service {
-        private final Repository repository;
-        private final NetworkClient networkClient;
-
-
-        public Service(final Repository repository, final NetworkClient networkClient) {
-            this.repository = repository;
-            this.networkClient = networkClient;
-        }
+        Repository repository;
+        NetworkClient networkClient;
 
         public void logic() {
             this.networkClient.call();
