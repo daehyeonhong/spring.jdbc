@@ -464,3 +464,8 @@ public interface PlatformTransactionManager {
 - 선언적 트랜잭션 관리가 효율적이고 간편하다.
 - 대부분 선언적 트랜잭션 관리를 사용한다.
 - 프로그래밍 방식은 `Spring`에 의존적이지 않다는 장점이 있다.(`TransactionTemplate`을 사용하면 `Spring`에 의존하게 된다.)
+
+### `SpringBoot`와 `Resource` 자동 등록
+
+- `DataSource`와 `TransactionManager`는 `SpringBoot`가 자동으로 등록해준다.
+- `application.properties`에 `spring.datasource.url`, `spring.datasource.username`, `spring.datasource.password`를 설정하면 `DataSource`가 자동으로 등록된다.
