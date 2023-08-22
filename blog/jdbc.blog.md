@@ -452,3 +452,15 @@ public interface PlatformTransactionManager {
 `Spring`에서는 `@Transactional`을 사용하여 `Transaction`을 구현할 수 있다.  
 `@Transactional`을 활용한 테스트를 진행 하려면, `SpringContainer`를 사용해야 한다.  
 `@SpringBootTest` 애너테이션과, `@TestConfiguration` 애너테이션을 사용하여 `SpringContainer`의 `Bean`을 등록해서 사용할 수 있다.
+
+### `DeclarativeTransactionManagement` vs `ProgrammaticTransactionManagement`
+
+- `DeclarativeTransactionManagement`
+    - `AOP`를 사용하여 `Transaction`을 구현한다.
+    - 과거에는 `XML`에 설정하기도
+    - 해당 로직에 `Transaction`을 적용하겠다고 선언하면 `AOP`를 통해 `Transaction`을 적용한다.
+- `ProgrammaticTransactionManagement`
+    - `Transaction`을 적용할 로직에 `Transaction`을 적용하는 코드를 작성한다.
+- 선언적 트랜잭션 관리가 효율적이고 간편하다.
+- 대부분 선언적 트랜잭션 관리를 사용한다.
+- 프로그래밍 방식은 `Spring`에 의존적이지 않다는 장점이 있다.(`TransactionTemplate`을 사용하면 `Spring`에 의존하게 된다.)
