@@ -446,3 +446,7 @@ public interface PlatformTransactionManager {
 #### `PlatformTransactionManager`
 
 `PlatformTransactionManager`는 `Transaction`을 시작하고, 종료하는 역할을 수행하며, `JDBC`를 사용하는 경우 `DataSourceTransactionManager`를 사용한다.
+
+## `SpringAOP`를 사용한 `Transaction` 구현
+
+`Spring`에서는 `@Transactional`을 사용하여 `Transaction`을 구현할 수 있다.  
