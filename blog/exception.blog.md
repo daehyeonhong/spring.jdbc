@@ -106,3 +106,21 @@ Web Application (Servlet Container)
 
 기존 `Exception`을 포함하여 새로운 `Exception`을 발생시키면, 기존 `Exception`의 `Stack Trace`가 함께 출력된다.  
 해당 로그를 누락한다면 `Exception`의 원인을 파악하기 어렵다.
+
+## `Spring Exception Abstraction`
+
+`Spring`은 `Database`관련 오류를 `DataAccessException`으로 추상화하였다.  
+`DataAccessException`은 `RuntimeException`을 상속 받기 때문에, `Check` 할 필요가 없다.  
+`DataAccessException`에는 두 가지 종류가 존재하는데 `NonTransientDataAccessException`과 `TransientDataAccessException`이다.  
+`Transient`란 `Database`가 잠시 불안정한 상태를 의미한다.  
+일시적으로 `Database`가 불안정한 상태라면 `TransientDataAccessException`을 사용하고, 그렇지 않다면 `NonTransientDataAccessException`을 사용한다.
+
+1. `NonTransientDataAccessException`
+    - `ConstraintViolationException`
+    - `SQL`문법 오류
+2. `TransientDataAccessException`
+    - `ConnectionException`
+    - `TimeoutException`
+
+`SQL` 동작 결과로 `SQLException`이 발생하면, `Spring`은 `SQLExceptionTranslator`를 사용하여 `DataAccessException`으로 변환한다.  
+`sql-error-codes.xml`에 `SQLException`에 대한 `DataAccessException`을 정의할 수 있다.  
