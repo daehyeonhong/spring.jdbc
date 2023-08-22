@@ -91,3 +91,10 @@ Web Application (Servlet Container)
 2. 의존 관계에 대한 문제
     - `Checked Exception`은 `throws`로 호출자에 `Exception`을 전달해야 한다.
     - 현재 `Layer`에서 발생한 `Exception`을 상위 `Layer`로 전달해야 하는데, `throws`로 전달하면 상위 `Layer`는 하위 `Layer`의 `Exception`에 의존하게 된다.
+        - 해당 문제를 해결하기 위해 `CheckedException`의 최상위 클래스인 `Exception`을 `throws`로 전달하게 되면, 중요한 `Exception`에 대한 처리를 놓칠 수 있다.
+        - `Complier`는 상위 `Exception`을 `throws`로 전달하면, 하위 `Exception`을 `throws`로 전달하지 않아도 되는 것으로 인식한다.
+
+### `Unchecked Exception` 활용
+
+`RuntimeException`을 사용하면, `Layer`간의 강결합을 피할 수 있다.  
+호출 간에 `Exception`을 명시적으로 전달하지 않아도 되기 때문에 공통 예외 처리부에만 `Exception`을 처리하면 된다.
