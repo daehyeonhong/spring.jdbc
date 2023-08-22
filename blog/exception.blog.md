@@ -124,3 +124,5 @@ Web Application (Servlet Container)
 
 `SQL` 동작 결과로 `SQLException`이 발생하면, `Spring`은 `SQLExceptionTranslator`를 사용하여 `DataAccessException`으로 변환한다.  
 `sql-error-codes.xml`에 `SQLException`에 대한 `DataAccessException`을 정의할 수 있다.  
+throw Objects.requireNonNull(this.exceptionTranslator.translate("delete", sql, sqlException));
+형태로 `SQLException`을 `DataAccessException`으로 변환한다.

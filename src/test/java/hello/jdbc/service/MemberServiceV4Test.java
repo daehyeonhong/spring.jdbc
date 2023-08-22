@@ -1,7 +1,8 @@
 package hello.jdbc.service;
 
 import hello.jdbc.domain.Member;
-import hello.jdbc.repository.MemberRepositoryV4_1;
+import hello.jdbc.repository.MemberRepository;
+import hello.jdbc.repository.MemberRepositoryV4_2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class MemberServiceV4Test {
     public static final int TRANSFER_AMOUNT = 2_000;
     private final static Logger log = LoggerFactory.getLogger(MemberServiceV4Test.class);
     @Autowired
-    private MemberRepositoryV4_1 memberRepository;
+    private MemberRepository memberRepository;
     @Autowired
     private MemberServiceV4 memberService;
 
@@ -44,13 +45,13 @@ class MemberServiceV4Test {
         }
 
         @Bean
-        MemberRepositoryV4_1 memberRepositoryV4_1() {
-            return new MemberRepositoryV4_1(this.dataSource);
+        MemberRepository memberRepository() {
+            return new MemberRepositoryV4_2(this.dataSource);
         }
 
         @Bean
         MemberServiceV4 memberServiceV4() {
-            return new MemberServiceV4(this.memberRepositoryV4_1());
+            return new MemberServiceV4(this.memberRepository());
         }
     }
 
