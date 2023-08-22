@@ -1,0 +1,88 @@
+package hello.jdbc.service;
+
+import com.zaxxer.hikari.HikariDataSource;
+import hello.jdbc.domain.Member;
+import hello.jdbc.repository.MemberRepositoryV3;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import java.sql.SQLException;
+
+import static hello.jdbc.connection.ConnectionConstant.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+/**
+ * Transaction - TransactionManager
+ */
+class MemberServiceV3_1Test {
+    private static final String MEMBER_A = "memberA";
+    private static final String MEMBER_B = "memberB";
+    private static final String MEMBER_EX = "ex";
+    private static final int MONEY = 10_000;
+    public static final int TRANSFER_AMOUNT = 2_000;
+
+    private MemberRepositoryV3 memberRepository;
+    private MemberServiceV3_1 memberService;
+
+    @BeforeEach
+    void setUp() {
+        final HikariDataSource hikariDataSource = new HikariDataSource();
+        hikariDataSource.setJdbcUrl(URL);
+        hikariDataSource.setUsername(USERNAME);
+        hikariDataSource.setPassword(PASSWORD);
+        this.memberRepository = new MemberRepositoryV3(hikariDataSource);
+        final PlatformTransactionManager transactionManager = new DataSourceTransactionManager(hikariDataSource);
+        this.memberService = new MemberServiceV3_1(transactionManager, this.memberRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.memberRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName(value = "정상 이체")
+    void accountTransfer() throws SQLException {
+        // given
+        final Member memberA = new Member(MEMBER_A, MONEY);
+        final Member memberB = new Member(MEMBER_B, MONEY);
+        this.memberRepository.save(memberA);
+        this.memberRepository.save(memberB);
+
+        // when
+        this.memberService.accountTransfer(MEMBER_A, MEMBER_B, TRANSFER_AMOUNT);
+
+        // then
+        final Member foundMemberA = this.memberRepository.findById(MEMBER_A);
+        final Member foundMemberB = this.memberRepository.findById(MEMBER_B);
+
+        assertThat(foundMemberA.getMoney()).isEqualTo(MONEY - TRANSFER_AMOUNT);
+        assertThat(foundMemberB.getMoney()).isEqualTo(MONEY + TRANSFER_AMOUNT);
+    }
+
+    @Test
+    @DisplayName(value = "이체중 예외 발생")
+    void accountTransferEx() throws SQLException {
+        // given
+        final Member memberA = new Member(MEMBER_A, MONEY);
+        final Member memberEx = new Member(MEMBER_EX, MONEY);
+        this.memberRepository.save(memberA);
+        this.memberRepository.save(memberEx);
+
+        // when
+        assertThatThrownBy(() -> this.memberService.accountTransfer(MEMBER_A, MEMBER_EX, TRANSFER_AMOUNT)).isInstanceOf(IllegalArgumentException.class);
+
+        // then
+        final Member foundMemberA = this.memberRepository.findById(MEMBER_A);
+        final Member foundMemberEx = this.memberRepository.findById(MEMBER_EX);
+
+        assertThat(foundMemberA.getMoney()).isEqualTo(MONEY);
+        assertThat(foundMemberEx.getMoney()).isEqualTo(MONEY);
+    }
+
+}

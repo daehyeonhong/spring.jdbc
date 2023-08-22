@@ -421,3 +421,28 @@ public interface PlatformTransactionManager {
 |            `JPA`             |      `JpaTransactionManager`       |
 |         `Hibernate`          |   `HibernateTransactionManager`    |
 |            `ETC`             |      `EtcTransactionManager`       |
+
+### 3.2. `TransactionSyncronization`
+
+`Spring`은 `TransactionSyncornizationManager`를 통해 `Transaction`을 동기화한다.
+
+*동작 방식*
+
+1. `TransactionManager`는 `DataSource`를 통해 `Connection`을 획득하고, `Transaction`을 시작한다.
+2. `TransactionManager`는 `TransactionSyncronizationManager`를 통해 `TransactionSyncronization`을 등록한다.
+3. `Repository`는 `TransactionSyncronizationManager`를 통해 등록된 `Connection`을 획득한다.
+4. `Transaction`이 종료되면 `TransactionManager`는 보관된 `Connection`을 통해 `Transaction`을 해제하고, `Connection`을 반환한다.
+
+#### `DataSourceUtils.getConnection()`
+
+- `getConnection()`에서 `DataSourceUtils.getConnection()`을 사용하면
+    1. `TransactionSyncronizationManager`가 관리하는 `Connection`을 획득한다.
+    2. `Connection`이 존재하지 않으면 `DataSource`를 통해 `Connection`을 획득한다.
+
+#### `DataSourceUtils.releaseConnection()`
+
+`Connection`은 `Transaction`동안 해제되면 안되기 때문에 `Transaction` 종료 시점에 `Connection`을 해제하여 준다.
+
+#### `PlatformTransactionManager`
+
+`PlatformTransactionManager`는 `Transaction`을 시작하고, 종료하는 역할을 수행하며, `JDBC`를 사용하는 경우 `DataSourceTransactionManager`를 사용한다.
