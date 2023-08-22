@@ -450,3 +450,5 @@ public interface PlatformTransactionManager {
 ## `SpringAOP`를 사용한 `Transaction` 구현
 
 `Spring`에서는 `@Transactional`을 사용하여 `Transaction`을 구현할 수 있다.  
+`@Transactional`을 활용한 테스트를 진행 하려면, `SpringContainer`를 사용해야 한다.  
+`@SpringBootTest` 애너테이션과, `@TestConfiguration` 애너테이션을 사용하여 `SpringContainer`의 `Bean`을 등록해서 사용할 수 있다.
