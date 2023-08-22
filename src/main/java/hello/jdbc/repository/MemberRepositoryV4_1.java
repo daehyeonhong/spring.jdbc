@@ -1,6 +1,7 @@
 package hello.jdbc.repository;
 
 import hello.jdbc.domain.Member;
+import hello.jdbc.repository.exception.MyDatabaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -11,20 +12,21 @@ import java.sql.*;
 import java.util.NoSuchElementException;
 
 /**
- * Transaction - TransactionManager
- * DataSourceUtils.getConnection(dataSource): Connection
- * DataSourceUtils.releaseConnection(connection, dataSource): void
+ * 예외 누수 문제 해결
+ * 체크 예외를 런타임 예외로 변경
+ * MemberRepositoryInterface 구현체
+ * throws SQLException 제거
  */
-public class MemberRepositoryV3 implements MemberRepositoryException {
-    private static final Logger log = LoggerFactory.getLogger(MemberRepositoryV3.class);
+public class MemberRepositoryV4_1 implements MemberRepository {
+    private static final Logger log = LoggerFactory.getLogger(MemberRepositoryV4_1.class);
     private final DataSource dataSource;
 
-    public MemberRepositoryV3(final DataSource dataSource) {
+    public MemberRepositoryV4_1(final DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
-    public Member save(final Member member) throws SQLException {
+    public Member save(final Member member) {
         final String sql = "INSERT INTO MEMBER(MEMBER_ID, MONEY) VALUES (?, ?)";
         log.info("sql: {}", sql);
         Connection connection = null;
@@ -38,8 +40,7 @@ public class MemberRepositoryV3 implements MemberRepositoryException {
             log.info("affectedRows: {}", affectedRows);
             return member;
         } catch (SQLException sqlException) {
-            log.error("Database Error", sqlException);
-            throw sqlException;
+            throw new MyDatabaseException(sqlException);
         } finally {
             close(connection, preparedStatement, null);
         }
@@ -53,7 +54,7 @@ public class MemberRepositoryV3 implements MemberRepositoryException {
     }
 
     @Override
-    public Member findById(final String memberId) throws SQLException {
+    public Member findById(final String memberId) {
         final String sql = "SELECT MEMBER_ID, MONEY FROM MEMBER WHERE MEMBER_ID = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -72,15 +73,14 @@ public class MemberRepositoryV3 implements MemberRepositoryException {
             }
             throw new NoSuchElementException("member not found memberId: " + memberId);
         } catch (SQLException sqlException) {
-            log.error("Database Error", sqlException);
-            throw sqlException;
+            throw new MyDatabaseException(sqlException);
         } finally {
             close(connection, preparedStatement, resultSet);
         }
     }
 
     @Override
-    public void update(final String memberId, int money) throws SQLException {
+    public void update(final String memberId, int money) {
         final String sql = "UPDATE MEMBER SET MONEY = ? WHERE MEMBER_ID = ?";
         log.info("sql: {}", sql);
         Connection connection = null;
@@ -93,15 +93,14 @@ public class MemberRepositoryV3 implements MemberRepositoryException {
             final int affectedRows = preparedStatement.executeUpdate();
             log.info("affectedRows: {}", affectedRows);
         } catch (SQLException sqlException) {
-            log.error("Database Error", sqlException);
-            throw sqlException;
+            throw new MyDatabaseException(sqlException);
         } finally {
             close(connection, preparedStatement, null);
         }
     }
 
     @Override
-    public void delete(final String memberId) throws SQLException {
+    public void delete(final String memberId) {
         final String sql = "DELETE FROM MEMBER WHERE MEMBER_ID = ?";
         log.info("sql: {}", sql);
         Connection connection = null;
@@ -113,8 +112,7 @@ public class MemberRepositoryV3 implements MemberRepositoryException {
             final int affectedRows = preparedStatement.executeUpdate();
             log.info("affectedRows: {}", affectedRows);
         } catch (SQLException sqlException) {
-            log.error("Database Error", sqlException);
-            throw sqlException;
+            throw new MyDatabaseException(sqlException);
         } finally {
             close(connection, preparedStatement, null);
         }
